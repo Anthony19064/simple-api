@@ -48,7 +48,7 @@ pipeline {
                         set -e
                         cd ${REPO_API_DIR}
                         docker build -t ${IMAGE_NAME} .
-                        docker run --rm -p 5000:5000 ${IMAGE_NAME}'
+                        docker run -d --rm -p 5000:5000 ${IMAGE_NAME}'
                     """
                 }
             }
