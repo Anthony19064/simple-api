@@ -9,7 +9,10 @@ pipeline {
     stages {
         stage('Clone simple-api') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo/simple-api.git'
+                git branch: 'main',
+                url: 'https://github.com/your-repo/simple-api.git',
+                credentialsId: 'Anthony19064'
+
             }
         }
 
