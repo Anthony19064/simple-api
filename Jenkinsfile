@@ -10,7 +10,7 @@ pipeline {
         REPO_ROBOT_DIR = "~/simple-api-robot"
         REPO_ROBOT_URL = "https://github.com/Anthony19064/simple-api-Robot.git"
         IMAGE_NAME = "simple-api:latest"
-         GITHUB_USER = "Anthony19064"
+        GITHUB_USER = "Anthony19064"
     }
 
     stages {
@@ -67,7 +67,6 @@ pipeline {
             }
         }
 
-
         stage('Run Robot Tests') {
             steps {
                 sshagent([VM2_SSH]) {
@@ -87,7 +86,7 @@ pipeline {
         stage('Push Docker image to GHCR') {
             steps {
                 sshagent([VM2_SSH]) {
-                    withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'Anthony19064', variable: 'GHCR_TOKEN')]) {
                         sh """
                             ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
                             set -e
@@ -100,7 +99,6 @@ pipeline {
                 }
             }
         }
-
 
     }
 }
