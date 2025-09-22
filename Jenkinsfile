@@ -65,5 +65,26 @@ pipeline {
             }
         }
 
+
+        stage('Run Robot Tests') {
+            steps {
+                sshagent([VM2_SSH]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
+                        set -e
+                        cd ${REPO_ROBOT_DIR}
+                        # สร้าง virtual environment สำหรับ robot test
+                        python3 -m venv venv
+                        source venv/bin/activate
+                        pip install --upgrade pip
+                        pip install -r requirements.txt  # ต้องมี robotframework, requestslibrary ใน requirements
+                        # รัน robot test โดยชี้ไปที่ API container บน localhost
+                        robot --outputdir reports tests/
+                        deactivate'
+                    """
+                }
+            }
+        }
+
     }
 }
