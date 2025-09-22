@@ -7,6 +7,7 @@ pipeline {
         VM2_HOST = "192.168.1.101"
         REPO_DIR = "~/simple-api"
         REPO_URL = "https://github.com/Anthony19064/simple-api.git"
+        IMAGE_NAME = "simple-api:latest"
     }
 
     stages {
@@ -37,5 +38,29 @@ pipeline {
             }
         }
 
+        stage('Build Docker image') {
+            steps {
+                sshagent([VM2_SSH]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
+                        set -e
+                        cd ${REPO_DIR}
+                        docker build -t ${IMAGE_NAME} .'
+                    """
+                }
+            }
+        }
+
+        stage('Run container') {
+            steps {
+                sshagent([VM2_SSH]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
+                        set -e
+                        docker run --rm ${IMAGE_NAME}'
+                    """
+                }
+            }
+        }
     }
 }
