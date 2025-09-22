@@ -30,7 +30,7 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
                         set -e
-                        cd ${REPO_DIR}
+                        cd ${REPO_API_DIR}
                         python3 -m venv venv
                         ./venv/bin/pip install --upgrade pip
                         ./venv/bin/pip install -r requirements.txt
@@ -46,7 +46,7 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
                         set -e
-                        cd ${REPO_DIR}
+                        cd ${REPO_API_DIR}
                         docker build -t ${IMAGE_NAME} .
                         docker run --rm -p 5000:5000 ${IMAGE_NAME}'
                     """
