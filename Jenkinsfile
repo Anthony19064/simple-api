@@ -25,8 +25,13 @@ pipeline {
             steps {
                 sshagent([VM2_SSH]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} \\
-                        "cd ${REPO_DIR} && pip3 install -r requirements.txt && python3 testapp.py"
+                        ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
+                        set -e
+                        cd ${REPO_DIR}
+                        python3 -m venv venv
+                        ./venv/bin/pip install --upgrade pip
+                        ./venv/bin/pip install -r requirements.txt
+                        ./venv/bin/python testapp.py'
                     """
                 }
             }
