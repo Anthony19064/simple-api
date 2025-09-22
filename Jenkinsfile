@@ -86,7 +86,7 @@ pipeline {
         stage('Push Docker image to GHCR') {
             steps {
                 sshagent([VM2_SSH]) {
-                    withCredentials([string(credentialsId: 'Anthony19064', variable: 'GHCR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
                         sh """
                             ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
                             set -e
