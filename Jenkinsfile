@@ -11,6 +11,7 @@ pipeline {
         REPO_ROBOT_URL = "https://github.com/Anthony19064/simple-api-Robot.git"
         IMAGE_NAME = "simple-api:latest"
         GITHUB_USER = "Anthony19064"
+        GITHUB_USER_LOWER = "anthony19064"  // เพิ่มตัวแปรสำหรับ lowercase
     }
 
     stages {
@@ -87,14 +88,14 @@ pipeline {
             steps {
                 sshagent([VM2_SSH]) {
                     withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
+                        sh '''
+                            ssh -o StrictHostKeyChecking=no ''' + VM2_USER + '''@''' + VM2_HOST + ''' '
                             set -e
-                            echo "${GHCR_TOKEN}" | docker login ghcr.io -u ${GITHUB_USER} --password-stdin
-                            docker tag ${IMAGE_NAME} ghcr.io/${GITHUB_USER}/simple-api:latest
-                            docker push ghcr.io/${GITHUB_USER}/simple-api:latest
+                            echo "''' + GHCR_TOKEN + '''" | docker login ghcr.io -u ''' + GITHUB_USER + ''' --password-stdin
+                            docker tag ''' + IMAGE_NAME + ''' ghcr.io/''' + GITHUB_USER_LOWER + '''/simple-api:latest
+                            docker push ghcr.io/''' + GITHUB_USER_LOWER + '''/simple-api:latest
                             '
-                        """
+                        '''
                     }
                 }
             }
