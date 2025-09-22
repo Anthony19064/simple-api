@@ -57,7 +57,8 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
                         set -e
-                        docker run --rm ${IMAGE_NAME}'
+                        docker run --rm -p 5000:5000 ${IMAGE_NAME}'
+
                     """
                 }
             }
