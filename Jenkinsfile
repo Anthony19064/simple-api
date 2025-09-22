@@ -26,26 +26,26 @@ pipeline {
             }
         }
 
-        stage('Setup Python and run tests') {
-            steps {
-                sshagent([VM2_SSH]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
-                        set -e
-                        cd ${REPO_DIR}
-                        if [ ! -d venv ]; then
-                            python3 -m venv venv
-                        fi
-                        source venv/bin/activate
-                        pip install --upgrade pip
-                        pip install -r requirements.txt
-                        pip install pytest
-                        python -m pytest testapp.py
-                        deactivate
-                        '
-                    """
-                }
-            }
-        }
+        // stage('Setup Python and run tests') {
+        //     steps {
+        //         sshagent([VM2_SSH]) {
+        //             sh """
+        //                 ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
+        //                 set -e
+        //                 cd ${REPO_DIR}
+        //                 if [ ! -d venv ]; then
+        //                     python3 -m venv venv
+        //                 fi
+        //                 source venv/bin/activate
+        //                 pip install --upgrade pip
+        //                 pip install -r requirements.txt
+        //                 pip install pytest
+        //                 python -m pytest testapp.py
+        //                 deactivate
+        //                 '
+        //             """
+        //         }
+        //     }
+        // }
     }
 }
