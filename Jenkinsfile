@@ -45,7 +45,7 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
                         set -e
                         cd ${REPO_DIR}
-                        docker build -t ${IMAGE_NAME} .'
+                        sudo docker build -t ${IMAGE_NAME} .'
                     """
                 }
             }
@@ -57,7 +57,7 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
                         set -e
-                        docker run --rm ${IMAGE_NAME}'
+                        sudo docker run --rm ${IMAGE_NAME}'
                     """
                 }
             }
