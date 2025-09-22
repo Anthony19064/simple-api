@@ -9,29 +9,40 @@ pipeline {
         REPO_URL = "https://github.com/Anthony19064/simple-api.git"
     }
 
+    triggers {
+        // Trigger pipeline จาก GitHub webhook
+        githubPush()
+    }
+
     stages {
-        stage('Clone repo on VM2') {
+        stage('Checkout main branch') {
             steps {
                 sshagent([VM2_SSH]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} \\
-                        "cd ${REPO_DIR} && git pull || git clone ${REPO_URL} ${REPO_DIR}"
+                        "if [ -d ${REPO_DIR} ]; then cd ${REPO_DIR} && git checkout main && git pull; else git clone -b main ${REPO_URL} ${REPO_DIR}; fi"
                     """
                 }
             }
         }
 
-        stage('Install requirements and run test') {
+        stage('Setup Python and run tests') {
             steps {
                 sshagent([VM2_SSH]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
                         set -e
                         cd ${REPO_DIR}
-                        python3 -m venv venv
-                        ./venv/bin/pip install --upgrade pip
-                        ./venv/bin/pip install -r requirements.txt
-                        ./venv/bin/python testapp.py'
+                        if [ ! -d venv ]; then
+                            python3 -m venv venv
+                        fi
+                        source venv/bin/activate
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                        pip install pytest
+                        python -m pytest testapp.py
+                        deactivate
+                        '
                     """
                 }
             }
