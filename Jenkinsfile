@@ -10,6 +10,7 @@ pipeline {
         REPO_ROBOT_DIR = "~/simple-api-robot"
         REPO_ROBOT_URL = "https://github.com/Anthony19064/simple-api-Robot.git"
         IMAGE_NAME = "simple-api:latest"
+         GITHUB_USER = "Anthony19064"
     }
 
     stages {
@@ -48,7 +49,8 @@ pipeline {
                         set -e
                         cd ${REPO_API_DIR}
                         docker build -t ${IMAGE_NAME} .
-                        docker run -d --rm -p 5000:5000 ${IMAGE_NAME}'
+                        docker rm -f simple-api || true
+                        docker run -d --rm --name simple-api -p 5000:5000 ${IMAGE_NAME}'
                     """
                 }
             }
@@ -78,6 +80,23 @@ pipeline {
                         ./venv/bin/pip install -r requirements.txt
                         ./venv/bin/robot --outputdir reports ~/simple-api-robot/testPlush.robot'
                     """
+                }
+            }
+        }
+
+        stage('Push Docker image to GHCR') {
+            steps {
+                sshagent([VM2_SSH]) {
+                    withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${VM2_USER}@${VM2_HOST} '
+                            set -e
+                            echo "${GHCR_TOKEN}" | docker login ghcr.io -u ${GITHUB_USER} --password-stdin
+                            docker tag ${IMAGE_NAME} ghcr.io/${GITHUB_USER}/simple-api:latest
+                            docker push ghcr.io/${GITHUB_USER}/simple-api:latest
+                            '
+                        """
+                    }
                 }
             }
         }
