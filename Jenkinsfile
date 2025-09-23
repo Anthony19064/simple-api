@@ -5,6 +5,9 @@ pipeline {
         VM2_SSH = "vm2-ssh-key-id"  // Credential SSH ที่สร้างไว้
         VM2_USER = "admin"
         VM2_HOST = "192.168.1.101"
+        VM3_SSH = "vm3-ssh-key-id"
+        VM3_USER = "admin"
+        VM3_HOST = "192.168.1.102"
         REPO_API_DIR = "~/simple-api"
         REPO_API_URL = "https://github.com/Anthony19064/simple-api.git"
         REPO_ROBOT_DIR = "~/simple-api-robot"
@@ -94,6 +97,38 @@ pipeline {
                             echo "''' + GHCR_TOKEN + '''" | docker login ghcr.io -u ''' + GITHUB_USER + ''' --password-stdin
                             docker tag ''' + IMAGE_NAME + ''' ghcr.io/''' + GITHUB_USER_LOWER + '''/simple-api:latest
                             docker push ghcr.io/''' + GITHUB_USER_LOWER + '''/simple-api:latest
+                            '
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to VM3') {
+            steps {
+                sshagent([VM3_SSH]) {
+                    withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
+                        sh '''
+                            ssh -o StrictHostKeyChecking=no ''' + VM3_USER + '''@''' + VM3_HOST + ''' '
+                            set -e
+                            echo "Logging into GitHub Container Registry..."
+                            echo "''' + GHCR_TOKEN + '''" | docker login ghcr.io -u ''' + GITHUB_USER + ''' --password-stdin
+                            
+                            echo "Stopping existing container if running..."
+                            docker stop simple-api-prod || echo "No existing container to stop"
+                            docker rm simple-api-prod || echo "No existing container to remove"
+                            
+                            echo "Pulling latest image..."
+                            docker pull ghcr.io/''' + GITHUB_USER_LOWER + '''/simple-api:latest
+                            
+                            echo "Starting new container..."
+                            docker run -d --name simple-api-prod --restart unless-stopped -p 5000:5000 ghcr.io/''' + GITHUB_USER_LOWER + '''/simple-api:latest
+                            
+                            echo "Verifying deployment..."
+                            sleep 5
+                            curl -f http://localhost:5000/plus/2/3 || echo "Health check failed"
+                            
+                            echo "Deployment to VM3 completed!"
                             '
                         '''
                     }
